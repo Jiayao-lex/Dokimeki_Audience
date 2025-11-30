@@ -1,7 +1,7 @@
 sample_rate: 22050
 hop_length: 512
 fft_window: 2048
-confidence_threshold: 0.55
+confidence_threshold: 0.2
 emotion_labels:
   - joyful
   - melancholic

@@ -14,9 +14,11 @@ from ..llm.dialogue import DialogueTurn
 @dataclass
 class GameResult:
     chord: Optional[ChordPrediction]
+    key: Optional[ChordPrediction]
     emotion: Optional[EmotionPrediction]
     descriptors: Dict[str, float | str]
     dialogue: Optional[DialogueTurn]
+    chord_sequence: List[tuple[float, str]] = field(default_factory=list)
 
 
 @dataclass

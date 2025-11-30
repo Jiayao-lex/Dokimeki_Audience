@@ -26,12 +26,13 @@ class OllamaClient:
         self,
         emotion_label: str,
         chord_label: str,
+        key_label: Optional[str] = None,
         descriptors: Optional[dict[str, float | str]] = None,
         history: Optional[Iterable[DialogueTurn]] = None,
     ) -> DialogueTurn:
         payload = {
             "model": self.model,
-            "prompt": _build_prompt(emotion_label, chord_label, descriptors, history),
+            "prompt": _build_prompt(emotion_label, chord_label, key_label, descriptors, history),
             "stream": False,
         }
 
@@ -60,6 +61,7 @@ class OllamaClient:
 def _build_prompt(
     emotion_label: str,
     chord_label: str,
+    key_label: Optional[str],
     descriptors: Optional[dict[str, float | str]],
     history: Optional[Iterable[DialogueTurn]],
 ) -> str:
@@ -75,15 +77,17 @@ def _build_prompt(
 
     descriptor_block = "\n".join(descriptor_lines) if descriptor_lines else "- No detailed descriptors"
     context_block = "\n".join(dialogue_context)
+    key_info = f"Detected key: {key_label}.\n" if key_label else ""
 
     return (
         "You are the in-game narrator for an interactive piano-driven adventure.\n"
         "Craft a single short line reacting to the player's latest chord.\n"
         f"Detected chord: {chord_label}.\n"
+        f"{key_info}"
         f"Predicted emotion: {emotion_label}.\n"
         "Audio descriptors:\n"
         f"{descriptor_block}\n"
         "Previous dialogue (most recent last):\n"
         f"{context_block}\n"
-        "Respond with immersive, game-appropriate prose (max 2 sentences)."
+        "Respond with empathetic, emotionally supportive words, as if from a deeply attentive partner. (max 2 sentences)."
     )

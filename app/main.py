@@ -15,7 +15,7 @@ from src.music_game.game.engine import MusicEmotionGame
 
 load_dotenv()
 
-APP_TITLE = "Piano Emotion Quest"
+APP_TITLE = "Music Emotion Detector"
 SUPPORTED_AUDIO_TYPES = ["audio/wav", "audio/x-wav", "audio/mpeg", "audio/ogg", "audio/webm"]
 SUPPORTED_MIDI_TYPES = ["audio/midi", "audio/x-midi", "application/octet-stream"]
 
@@ -53,6 +53,7 @@ def main() -> None:
     with col2:
         st.header("Chord & Emotion")
         chord_placeholder = st.empty()
+        key_placeholder = st.empty()
         emotion_placeholder = st.empty()
 
     if uploaded is None and audio_input is None:
@@ -72,7 +73,7 @@ def main() -> None:
         placeholder.warning("Could not decode the submission. Try another file.")
         return
 
-    _render_result(placeholder, chord_placeholder, emotion_placeholder, result)
+    _render_result(placeholder, chord_placeholder, key_placeholder, emotion_placeholder, result)
 
 
 def _handle_upload(game: MusicEmotionGame, uploaded_file) -> Optional[GameResult]:  # type: ignore[no-untyped-def]
@@ -114,8 +115,9 @@ def _handle_upload(game: MusicEmotionGame, uploaded_file) -> Optional[GameResult
     return None
 
 
-def _render_result(placeholder, chord_placeholder, emotion_placeholder, result: GameResult) -> None:  # type: ignore[no-untyped-def]
+def _render_result(placeholder, chord_placeholder, key_placeholder, emotion_placeholder, result: GameResult) -> None:  # type: ignore[no-untyped-def]
     chord_label = result.chord.label if result.chord else "Unknown"
+    key_label = result.key.label if result.key else "Unknown"
     emotion_label = result.emotion.label if result.emotion else "Undetermined"
 
     if result.dialogue:
@@ -124,12 +126,19 @@ def _render_result(placeholder, chord_placeholder, emotion_placeholder, result: 
         placeholder.info("No dialogue generated for this chord yet.")
 
     chord_placeholder.metric(label="Chord", value=chord_label)
+    key_placeholder.metric(label="Key", value=key_label)
 
     if result.emotion:
         emotion_placeholder.metric(label="Emotion", value=emotion_label, delta=f"{result.emotion.confidence:.2f}")
         probs = result.emotion.probabilities
         chart_data = {label: value for label, value in probs.items()}
         st.bar_chart(chart_data)
+
+    if result.chord_sequence:
+        st.subheader("Chord Progression")
+        # Format as a simple timeline string or table
+        sequence_data = [{"Time": f"{t:.1f}s", "Chord": c} for t, c in result.chord_sequence]
+        st.dataframe(sequence_data, use_container_width=True)
     else:
         emotion_placeholder.metric(label="Emotion", value=emotion_label)
 
