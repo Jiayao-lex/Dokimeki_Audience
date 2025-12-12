@@ -15,4 +15,5 @@ PyYAML>=6.0.1
 python-osc>=1.8.3
 streamlit-webrtc>=0.47.0
 opencv-python-headless>=4.8.0
+gTTS>=2.3.2
 

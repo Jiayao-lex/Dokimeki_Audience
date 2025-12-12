@@ -4,10 +4,12 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Optional
+from io import BytesIO
 
 import numpy as np
 import streamlit as st
 from dotenv import load_dotenv
+from gtts import gTTS
 
 from src.music_game.audio.input import ChordPrediction
 from src.music_game.game.common import GameConfig, GameResult
@@ -122,6 +124,16 @@ def _render_result(placeholder, chord_placeholder, key_placeholder, emotion_plac
 
     if result.dialogue:
         placeholder.success(result.dialogue.content)
+        
+        # Generate TTS
+        try:
+            tts = gTTS(text=result.dialogue.content, lang='en')
+            audio_fp = BytesIO()
+            tts.write_to_fp(audio_fp)
+            audio_fp.seek(0)
+            st.audio(audio_fp, format='audio/mp3')
+        except Exception as e:
+            st.warning(f"Could not generate speech: {e}")
     else:
         placeholder.info("No dialogue generated for this chord yet.")
 
